@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Squash Ladder</title>
+    <style>
+        :root {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #4CAF50;
+            --accent-hover: #45a049;
+            --danger: #f44336;
+            --danger-hover: #da190b;
+            --border: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        .login-btn {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .main-content {
+                flex-direction: row;
+            }
+        }
+
+        .ladder-section {
+            flex: 1;
+        }
+
+        .actions-section {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+        }
+
+        .ladder-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .ladder-table th {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .ladder-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ladder-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ladder-table tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .position {
+            font-weight: bold;
+            color: var(--accent);
+            width: 60px;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .status-message {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 15px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        .error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-title {
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn {
+            width: auto;
+            flex: 1;
+        }
+
+        .admin-panel {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .admin-panel h2 {
+            color: var(--accent);
+            margin-bottom: 15px;
+        }
+
+        .pending-requests {
+            margin-top: 20px;
+        }
+
+        .request-item {
+            background: var(--bg-tertiary);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .request-info {
+            margin-bottom: 10px;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .request-actions .btn {
+            width: auto;
+            flex: 1;
+            padding: 8px 12px;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: var(--danger-hover);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @media (max-width: 767px) {
+            .ladder-table {
+                font-size: 0.9rem;
+            }
+            
+            .ladder-table th, 
+            .ladder-table td {
+                padding: 10px 8px;
+            }
+            
+            .request-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Squash Ladder</h1>
+            <button class="login-btn" id="loginBtn">Admin Login</button>
+        </header>
+
+        <div class="main-content">
+            <section class="ladder-section">
+                <h2 class="section-title">Current Ladder</h2>
+                <div class="card">
+                    <table class="ladder-table" id="ladderTable">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Name</th>
+                                <th>Wins</th>
+                                <th>Losses</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ladderBody">
+                            <!-- Ladder data will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="actions-section">
+                <h2 class="section-title">Actions</h2>
+                
+                <div class="card">
+                    <h3>Join the Ladder</h3>
+                    <form id="joinForm">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Request to Join</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <h3>Challenge a Player</h3>
+                    <form id="challengeForm">
+                        <div class="form-group">
+                            <label for="challenger">Your Name</label>
+                            <select id="challenger" required>
+                                <option value="">Select your name</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="opponent">Opponent to Challenge</label>
+                            <select id="opponent" required>
+                                <option value="">Select opponent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="result">Match Result</label>
+                            <select id="result" required>
+                                <option value="">Select result</option>
+                                <option value="win">You Won</option>
+                                <option value="loss">You Lost</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Challenge Result</button>
+                    </form>
+                </div>
+
+                <div id="statusMessage" class="status-message"></div>
+            </section>
+        </div>
+
+        <!-- Admin Panel (hidden by default) -->
+        <div class="admin-panel" id="adminPanel">
+            <h2>Admin Panel</h2>
+            <div class="card">
+                <h3>Pending Requests</h3>
+                <div class="pending-requests" id="pendingRequests">
+                    <!-- Pending requests will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Modal -->
+        <div class="modal" id="loginModal">
+            <div class="modal-content">
+                <h3 class="modal-title">Admin Login</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Password</label>
+                    <input type="password" id="adminPassword" placeholder="Enter admin password">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" id="cancelLogin">Cancel</button>
+                    <button class="btn btn-primary" id="confirmLogin">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Squash Ladder Management System &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration - Update these with your GitHub details
+        const GITHUB_CONFIG = {
+            // Replace with your GitHub username
+            username: 'YOUR_GITHUB_USERNAME',
+            // Replace with your repository name
+            repo: 'squash-ladder-data',
+            // GitHub Personal Access Token with repo permissions
+            // Create one at: https://github.com/settings/tokens
+            token: 'YOUR_GITHUB_TOKEN',
+            // Branch to use (usually 'main' or 'master')
+            branch: 'main'
+        };
+
+        // File paths in the repository
+        const DATA_FILES = {
+            ladder: 'data/ladder.json',
+            pending: 'data/pending.json'
+        };
+
+        let ladderData = [];
+        let pendingRequests = [];
+        let isAdmin = false;
+        const adminPassword = "admin123"; // Simple password for demo
+
+        // DOM Elements
+        const ladderBody = document.getElementById('ladderBody');
+        const joinForm = document.getElementById('joinForm');
+        const challengeForm = document.getElementById('challengeForm');
+        const challengerSelect = document.getElementById('challenger');
+        const opponentSelect = document.getElementById('opponent');
+        const statusMessage = document.getElementById('statusMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const cancelLogin = document.getElementById('cancelLogin');
+        const confirmLogin = document.getElementById('confirmLogin');
+        const adminPanel = document.getElementById('adminPanel');
+        const pendingRequestsContainer = document.getElementById('pendingRequests');
+
+        // Initialize the application
+        async function init() {
+            showStatus('Loading data...', 'success');
+            
+            try {
+                await loadData();
+                renderLadder();
+                updatePlayerSelects();
+                showStatus('Data loaded successfully', 'success');
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showStatus('Error loading data. Using sample data.', 'error');
+                // Load sample data if GitHub loading fails
+                loadSampleData();
+                renderLadder();
+                updatePlayerSelects();
+            }
+            
+            // Event listeners
+            joinForm.addEventListener('submit', handleJoinRequest);
+            challengeForm.addEventListener('submit', handleChallenge);
+            loginBtn.addEventListener('click', showLoginModal);
+            cancelLogin.addEventListener('click', hideLoginModal);
+            confirmLogin.addEventListener('click', handleLogin);
+            challengerSelect.addEventListener('change', updateOpponentOptions);
+        }
+
+        // GitHub API functions
+        async function githubApiRequest(url, options = {}) {
+            const fullUrl = `https://api.github.com${url}`;
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `token ${GITHUB_CONFIG.token}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            const response = await fetch(fullUrl, { ...defaultOptions, ...options });
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
+            }
+            
+            return response.json();
+        }
+
+        async function getFileContent(filePath) {
+            try {
+                const url = `/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
+                const fileData = await githubApiRequest(url);
+                
+                // File content is base64 encoded
+                const content = atob(fileData.content);
+                return JSON.parse(content);
+            } catch (error) {
+                // If file doesn't exist, return empty array
+                if (error.message.includes('404')) {
+                    return [];
+                }
+                throw error;
+            }
+        }
+
+        async function updateFile(filePath, content, commitMessage) {
+            // First, get the current file to get its SHA (needed for update)
+            let sha = null;
+            try {
+                const url = `/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
+                const currentFile = await githubApiRequest(url);
+                sha = currentFile.sha;
+            } catch (error) {
+                // File doesn't exist yet, that's fine - we'll create it
+            }
+
+            const url = `/repos/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repo}/contents/${filePath}`;
+            const body = {
+                message: commitMessage,
+                content: btoa(JSON.stringify(content, null, 2)),
+                branch: GITHUB_CONFIG.branch
+            };
+
+            if (sha) {
+                body.sha = sha;
+            }
+
+            return githubApiRequest(url, {
+                method: 'PUT',
+                body: JSON.stringify(body)
+            });
+        }
+
+        async function loadData() {
+            try {
+                [ladderData, pendingRequests] = await Promise.all([
+                    getFileContent(DATA_FILES.ladder),
+                    getFileContent(DATA_FILES.pending)
+                ]);
+            } catch (error) {
+                console.error('Error loading data from GitHub:', error);
+                throw error;
+            }
+        }
+
+        async function saveData() {
+            try {
+                await Promise.all([
+                    updateFile(DATA_FILES.ladder, ladderData, 'Update ladder data'),
+                    updateFile(DATA_FILES.pending, pendingRequests, 'Update pending requests')
+                ]);
+                return true;
+            } catch (error) {
+                console.error('Error saving data to GitHub:', error);
+                showStatus('Error saving data to GitHub', 'error');
+                return false;
+            }
+        }
+
+        // Load sample data if GitHub fails
+        function loadSampleData() {
+            ladderData = [
+                { id: 1, firstName: "John", lastName: "Smith", position: 1, wins: 5, losses: 1 },
+                { id: 2, firstName: "Sarah", lastName: "Johnson", position: 2, wins: 4, losses: 2 },
+                { id: 3, firstName: "Michael", lastName: "Williams", position: 3, wins: 3, losses: 3 },
+                { id: 4, firstName: "Emily", lastName: "Brown", position: 4, wins: 2, losses: 4 },
+                { id: 5, firstName: "David", lastName: "Jones", position: 5, wins: 1, losses: 5 }
+            ];
+            pendingRequests = [];
+        }
+
+        // Render the ladder table
+        function renderLadder() {
+            ladderBody.innerHTML = '';
+            
+            ladderData.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="position">${player.position}</td>
+                    <td>${player.firstName} ${player.lastName}</td>
+                    <td>${player.wins}</td>
+                    <td>${player.losses}</td>
+                `;
+                ladderBody.appendChild(row);
+            });
+        }
+
+        // Update player dropdowns
+        function updatePlayerSelects() {
+            // Clear existing options (except the first placeholder)
+            challengerSelect.innerHTML = '<option value="">Select your name</option>';
+            opponentSelect.innerHTML = '<option value="">Select opponent</option>';
+            
+            ladderData.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player.id;
+                option.textContent = `${player.firstName} ${player.lastName} (Position ${player.position})`;
+                challengerSelect.appendChild(option);
+            });
+        }
+
+        // Update opponent options based on selected challenger
+        function updateOpponentOptions() {
+            const challengerId = parseInt(challengerSelect.value);
+            
+            if (!challengerId) {
+                opponentSelect.innerHTML = '<option value="">Select opponent</option>';
+                return;
+            }
+            
+            const challenger = ladderData.find(p => p.id === challengerId);
+            if (!challenger) return;
+            
+            // Clear opponent options
+            opponentSelect.innerHTML = '<option value="">Select opponent</option>';
+            
+            // Only show players up to 3 positions above the challenger
+            const eligibleOpponents = ladderData.filter(player => {
+                return player.position < challenger.position && 
+                       player.position >= challenger.position - 3;
+            });
+            
+            eligibleOpponents.forEach(player => {
+                const option = document.createElement('option');
+                option.value = player.id;
+                option.textContent = `${player.firstName} ${player.lastName} (Position ${player.position})`;
+                opponentSelect.appendChild(option);
+            });
+            
+            // If no eligible opponents, show message
+            if (eligibleOpponents.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "No eligible opponents (must be within 3 positions above you)";
+                option.disabled = true;
+                opponentSelect.appendChild(option);
+            }
+        }
+
+        // Handle join request
+        async function handleJoinRequest(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            if (!firstName || !lastName) {
+                showStatus('Please enter both first and last name', 'error');
+                return;
+            }
+            
+            // Check if player already exists
+            const existingPlayer = ladderData.find(p => 
+                p.firstName.toLowerCase() === firstName.toLowerCase() && 
+                p.lastName.toLowerCase() === lastName.toLowerCase()
+            );
+            
+            if (existingPlayer) {
+                showStatus('This player is already in the ladder', 'error');
+                return;
+            }
+            
+            // Create join request
+            const request = {
+                id: Date.now(),
+                type: 'join',
+                firstName,
+                lastName,
+                timestamp: new Date().toISOString()
+            };
+            
+            pendingRequests.push(request);
+            const saved = await saveData();
+            
+            if (saved) {
+                showStatus('Join request submitted. Waiting for admin approval.', 'success');
+                joinForm.reset();
+                
+                // If admin is logged in, update the pending requests display
+                if (isAdmin) {
+                    renderPendingRequests();
+                }
+            }
+        }
+
+        // Handle challenge submission
+        async function handleChallenge(e) {
+            e.preventDefault();
+            
+            const challengerId = parseInt(challengerSelect.value);
+            const opponentId = parseInt(opponentSelect.value);
+            const result = document.getElementById('result').value;
+            
+            if (!challengerId || !opponentId || !result) {
+                showStatus('Please fill all fields', 'error');
+                return;
+            }
+            
+            const challenger = ladderData.find(p => p.id === challengerId);
+            const opponent = ladderData.find(p => p.id === opponentId);
+            
+            // Check if challenger is allowed to challenge this opponent
+            // This should already be enforced by the UI, but double-check
+            if (opponent.position >= challenger.position || 
+                opponent.position < challenger.position - 3) {
+                showStatus('You can only challenge players up to 3 positions above you', 'error');
+                return;
+            }
+            
+            // Create challenge request
+            const request = {
+                id: Date.now(),
+                type: 'challenge',
+                challengerId,
+                opponentId,
+                result,
+                timestamp: new Date().toISOString()
+            };
+            
+            pendingRequests.push(request);
+            const saved = await saveData();
+            
+            if (saved) {
+                showStatus('Challenge result submitted. Waiting for admin approval.', 'success');
+                challengeForm.reset();
+                
+                // If admin is logged in, update the pending requests display
+                if (isAdmin) {
+                    renderPendingRequests();
+                }
+            }
+        }
+
+        // Show login modal
+        function showLoginModal() {
+            if (isAdmin) {
+                // Logout if already admin
+                isAdmin = false;
+                adminPanel.style.display = 'none';
+                loginBtn.textContent = 'Admin Login';
+                showStatus('Admin logged out', 'success');
+                return;
+            }
+            loginModal.style.display = 'flex';
+        }
+
+        // Hide login modal
+        function hideLoginModal() {
+            loginModal.style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // Handle admin login
+        function handleLogin() {
+            const password = document.getElementById('adminPassword').value;
+            
+            if (password === adminPassword) {
+                isAdmin = true;
+                adminPanel.style.display = 'block';
+                loginBtn.textContent = 'Admin Logout';
+                renderPendingRequests();
+                hideLoginModal();
+                showStatus('Admin login successful', 'success');
+            } else {
+                showStatus('Incorrect password', 'error');
+            }
+        }
+
+        // Render pending requests for admin
+        function renderPendingRequests() {
+            if (!isAdmin) return;
+            
+            pendingRequestsContainer.innerHTML = '';
+            
+            if (pendingRequests.length === 0) {
+                pendingRequestsContainer.innerHTML = '<p>No pending requests</p>';
+                return;
+            }
+            
+            pendingRequests.forEach(request => {
+                const requestElement = document.createElement('div');
+                requestElement.className = 'request-item';
+                
+                if (request.type === 'join') {
+                    requestElement.innerHTML = `
+                        <div class="request-info">
+                            <strong>Join Request</strong><br>
+                            ${request.firstName} ${request.lastName}<br>
+                            <small>${new Date(request.timestamp).toLocaleString()}</small>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn btn-primary" onclick="approveRequest(${request.id})">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectRequest(${request.id})">Reject</button>
+                        </div>
+                    `;
+                } else if (request.type === 'challenge') {
+                    const challenger = ladderData.find(p => p.id === request.challengerId);
+                    const opponent = ladderData.find(p => p.id === request.opponentId);
+                    
+                    requestElement.innerHTML = `
+                        <div class="request-info">
+                            <strong>Challenge Result</strong><br>
+                            ${challenger.firstName} ${challenger.lastName} (Pos ${challenger.position}) 
+                            vs ${opponent.firstName} ${opponent.lastName} (Pos ${opponent.position})<br>
+                            Result: ${request.result === 'win' ? 'Challenger Won' : 'Challenger Lost'}<br>
+                            <small>${new Date(request.timestamp).toLocaleString()}</small>
+                        </div>
+                        <div class="request-actions">
+                            <button class="btn btn-primary" onclick="approveRequest(${request.id})">Approve</button>
+                            <button class="btn btn-danger" onclick="rejectRequest(${request.id})">Reject</button>
+                        </div>
+                    `;
+                }
+                
+                pendingRequestsContainer.appendChild(requestElement);
+            });
+        }
+
+        // Approve a request
+        async function approveRequest(requestId) {
+            const requestIndex = pendingRequests.findIndex(r => r.id === requestId);
+            if (requestIndex === -1) return;
+            
+            const request = pendingRequests[requestIndex];
+            
+            if (request.type === 'join') {
+                // Add new player to the bottom of the ladder
+                const newPlayer = {
+                    id: Date.now(),
+                    firstName: request.firstName,
+                    lastName: request.lastName,
+                    position: ladderData.length + 1,
+                    wins: 0,
+                    losses: 0
+                };
+                
+                ladderData.push(newPlayer);
+            } else if (request.type === 'challenge' && request.result === 'win') {
+                // Handle challenge win - update positions
+                const challenger = ladderData.find(p => p.id === request.challengerId);
+                const opponent = ladderData.find(p => p.id === request.opponentId);
+                
+                // Only update if challenger is below opponent
+                if (challenger.position > opponent.position) {
+                    // Swap positions
+                    const tempPosition = challenger.position;
+                    challenger.position = opponent.position;
+                    opponent.position = tempPosition;
+                    
+                    // Update wins/losses
+                    challenger.wins += 1;
+                    opponent.losses += 1;
+                    
+                    // Sort ladder by position
+                    ladderData.sort((a, b) => a.position - b.position);
+                }
+            } else if (request.type === 'challenge' && request.result === 'loss') {
+                // Handle challenge loss - just update stats
+                const challenger = ladderData.find(p => p.id === request.challengerId);
+                const opponent = ladderData.find(p => p.id === request.opponentId);
+                
+                challenger.losses += 1;
+                opponent.wins += 1;
+            }
+            
+            // Remove the request
+            pendingRequests.splice(requestIndex, 1);
+            
+            // Update UI and storage
+            renderLadder();
+            updatePlayerSelects();
+            const saved = await saveData();
+            
+            if (saved) {
+                renderPendingRequests();
+                showStatus('Request approved', 'success');
+            }
+        }
+
+        // Reject a request
+        async function rejectRequest(requestId) {
+            const requestIndex = pendingRequests.findIndex(r => r.id === requestId);
+            if (requestIndex === -1) return;
+            
+            pendingRequests.splice(requestIndex, 1);
+            const saved = await saveData();
+            
+            if (saved) {
+                renderPendingRequests();
+                showStatus('Request rejected', 'success');
+            }
+        }
+
+        // Show status message
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message ${type}`;
+            statusMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                statusMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
